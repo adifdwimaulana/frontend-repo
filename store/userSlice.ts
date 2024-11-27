@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchUserData } from "@/apis/user";
+import { fetchUserData, updateUserData } from "@/apis/user";
 import { UserState } from "@/types";
 
 interface InitialState {
@@ -15,9 +15,17 @@ const initialState: InitialState = {
 };
 
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
-  const response = await fetchUserData();
-  return response.data;
+  const { data } = await fetchUserData();
+  return data.data;
 });
+
+export const updateUser = createAsyncThunk(
+  "user/updateUser",
+  async (userData: UserState) => {
+    const { data } = await updateUserData(userData);
+    return data.data;
+  }
+);
 
 export const userSlice = createSlice({
   name: "user",
@@ -34,7 +42,18 @@ export const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = "error";
-        state.error = action.error.message as string;
+        state.error = action.error.message || "Failed to fetch user";
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.status = "success";
+        state.data = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.status = "error";
+        state.error = action.error.message || "Failed to update user";
       });
   },
 });

@@ -10,3 +10,11 @@ export interface UserState {
   gender: string | null;
   address: string | null;
 }
+
+export interface RegisterUser {
+  name: string;
+  email: string;
+  password: string;
+  gender: string | null;
+  address: string | null;
+}

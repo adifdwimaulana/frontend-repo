@@ -1,5 +1,6 @@
 "use client";
 
+import { SnackbarProvider } from "@/contexts/snackbar-context";
 import store, { persistor } from "@/store/store";
 import { Provider } from "@/theme/theme-provider";
 import { Provider as StoreProvicer } from "react-redux";
@@ -15,7 +16,9 @@ export default function RootLayout({
       <body>
         <Provider>
           <StoreProvicer store={store}>
-            <PersistGate persistor={persistor}>{children}</PersistGate>
+            <PersistGate persistor={persistor}>
+              <SnackbarProvider>{children}</SnackbarProvider>
+            </PersistGate>
           </StoreProvicer>
         </Provider>
       </body>

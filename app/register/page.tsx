@@ -11,29 +11,44 @@ import {
   Box,
   MenuItem,
 } from "@mui/material";
+import { RegisterUser } from "@/types";
+import { registerUser } from "@/apis/user";
+import { useSnackbar } from "@/contexts/snackbar-context";
 
 export default function Register() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterUser>({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
     gender: "",
     address: "",
   });
   const router = useRouter();
+  const { showSnackbar } = useSnackbar();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically handle the registration logic
-    console.log("Registration attempt with:", formData);
-    // For demo purposes, we'll just redirect to the main page
-    router.push("/main");
+
+    try {
+      const {
+        data: { status, message },
+      } = await registerUser(formData);
+
+      if (status === "success") {
+        showSnackbar(message, "success");
+        router.push("/login");
+      } else {
+        throw new Error("Failed to register user");
+      }
+    } catch (error: any) {
+      console.error(error);
+      showSnackbar(`Failed to login ${error.message}`, "error");
+    }
   };
 
   return (
@@ -83,17 +98,6 @@ export default function Register() {
             id="password"
             autoComplete="new-password"
             value={formData.password}
-            onChange={handleChange}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="confirmPassword"
-            label="Confirm Password"
-            type="password"
-            id="confirmPassword"
-            value={formData.confirmPassword}
             onChange={handleChange}
           />
           <TextField

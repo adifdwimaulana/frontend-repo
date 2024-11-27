@@ -1,9 +1,21 @@
-import { UserState } from "@/types";
-import axios from "axios";
+import { RegisterUser, UserState } from "@/types";
+import axios, { AxiosResponse } from "axios";
 
-const API_BASE_URL = "http://127.0.0.1:5001/e-buddy-monorepo/us-central1";
+const API_BASE_URL = "http://127.0.0.1:5001/e-buddy-monorepo/us-central1/app";
 
-export function fetchUserData() {
+interface Response {
+  status: string;
+  message: string;
+  data: UserState | null;
+}
+
+export function registerUser(
+  data: RegisterUser
+): Promise<AxiosResponse<Response>> {
+  return axios.post(`${API_BASE_URL}/register-user`, data);
+}
+
+export function fetchUserData(): Promise<AxiosResponse<Response>> {
   const token = getAccessToken();
   return axios.get(`${API_BASE_URL}/fetch-user-data`, {
     headers: {
@@ -12,20 +24,15 @@ export function fetchUserData() {
   });
 }
 
-export function updateUserData(data: UserState) {
+export function updateUserData(
+  data: UserState
+): Promise<AxiosResponse<Response>> {
   const token = getAccessToken();
-  return axios.put(`${API_BASE_URL}/update-user-data`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    data,
+  return axios.put(`${API_BASE_URL}/update-user-data`, data, {
+    headers: { Authorization: `Bearer ${token}` },
   });
 }
 
 function getAccessToken() {
-  const auth = localStorage.getItem("auth");
-  if (auth) {
-    return JSON.parse(auth).accessToken;
-  }
-  return null;
+  return localStorage.getItem("accessToken");
 }

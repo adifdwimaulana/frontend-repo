@@ -6,14 +6,16 @@ import Link from "next/link";
 import { Button, Container, TextField, Typography, Box } from "@mui/material";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/config/firebaseConfig";
-import { useDispatch, useSelector } from "react-redux";
 import { setAuth } from "@/store/authSlice";
+import { useSnackbar } from "@/contexts/snackbar-context";
+import { useAppDispatch } from "@/hooks/useRedux";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
+  const { showSnackbar } = useSnackbar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,11 +25,14 @@ export default function Login() {
       if (user) {
         const { token } = await user.getIdTokenResult();
         dispatch(setAuth({ isAuthenticated: true, accessToken: token }));
+        localStorage.setItem("accessToken", token);
+        localStorage.setItem("isAuthenticated", "true");
 
         router.push("/");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      showSnackbar(`Failed to login ${error.message}`, "error");
     }
   };
 
